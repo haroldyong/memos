@@ -32,6 +32,9 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
+    hmr: {
+      overlay: false,
+    },
   },
   resolve: {
     alias: {
