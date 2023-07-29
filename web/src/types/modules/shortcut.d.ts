@@ -3,7 +3,6 @@ type ShortcutId = number;
 interface Shortcut {
   id: ShortcutId;
 
-  creatorId: UserId;
   rowStatus: RowStatus;
   createdTs: TimeStamp;
   updatedTs: TimeStamp;
@@ -25,5 +24,5 @@ interface ShortcutPatch {
 }
 
 interface ShortcutFind {
-  creatorId?: UserId;
+  creatorUsername?: string;
 }

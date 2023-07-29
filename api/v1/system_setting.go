@@ -39,6 +39,8 @@ const (
 	SystemSettingMemoDisplayWithUpdatedTsName SystemSettingName = "memo-display-with-updated-ts"
 	// SystemSettingOpenAIConfigName is the name of OpenAI config.
 	SystemSettingOpenAIConfigName SystemSettingName = "openai-config"
+	// SystemSettingAutoBackupIntervalName is the name of auto backup interval as seconds.
+	SystemSettingAutoBackupIntervalName SystemSettingName = "auto-backup-interval"
 )
 
 // CustomizedProfile is the struct definition for SystemSettingCustomizedProfileName system setting item.
@@ -138,6 +140,14 @@ func (upsert UpsertSystemSettingRequest) Validate() error {
 		value := OpenAIConfig{}
 		if err := json.Unmarshal([]byte(upsert.Value), &value); err != nil {
 			return fmt.Errorf(systemSettingUnmarshalError, settingName)
+		}
+	case SystemSettingAutoBackupIntervalName:
+		var value int
+		if err := json.Unmarshal([]byte(upsert.Value), &value); err != nil {
+			return fmt.Errorf(systemSettingUnmarshalError, settingName)
+		}
+		if value < 0 {
+			return fmt.Errorf("must be positive")
 		}
 	case SystemSettingTelegramBotTokenName:
 		if upsert.Value == "" {

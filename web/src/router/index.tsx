@@ -16,7 +16,7 @@ const Home = lazy(() => import("@/pages/Home"));
 const MemoDetail = lazy(() => import("@/pages/MemoDetail"));
 const EmbedMemo = lazy(() => import("@/pages/EmbedMemo"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
-const MemosChat = lazy(() => import("@/pages/MemosChat"));
+const MemoChat = lazy(() => import("@/pages/MemoChat"));
 
 const initialGlobalStateLoader = (() => {
   let done = false;
@@ -63,17 +63,24 @@ const router = createBrowserRouter([
             // do nth
           }
 
-          const { host, user } = store.getState().user;
-          if (isNullorUndefined(host)) {
-            return redirect("/auth");
-          } else if (isNullorUndefined(user)) {
-            return redirect("/explore");
+          const { user } = store.getState().user;
+          const { systemStatus } = store.getState().global;
+
+          // if user is authenticated, then show home
+          if (!isNullorUndefined(user)) {
+            return null;
           }
-          return null;
+
+          // if user is anonymous, then redirect to auth if disabled public memos, else redirect to explore
+          if (systemStatus.disablePublicMemos) {
+            return redirect("/auth");
+          }
+
+          return redirect("/explore");
         },
       },
       {
-        path: "/u/:userId",
+        path: "u/:username",
         element: <Home />,
         loader: async () => {
           await initialGlobalStateLoader();
@@ -84,10 +91,13 @@ const router = createBrowserRouter([
             // do nth
           }
 
-          const { host } = store.getState().user;
-          if (isNullorUndefined(host)) {
+          const { user } = store.getState().user;
+          const { systemStatus } = store.getState().global;
+
+          if (isNullorUndefined(user) && systemStatus.disablePublicMemos) {
             return redirect("/auth");
           }
+
           return null;
         },
       },
@@ -103,8 +113,10 @@ const router = createBrowserRouter([
             // do nth
           }
 
-          const { host } = store.getState().user;
-          if (isNullorUndefined(host)) {
+          const { user } = store.getState().user;
+          const { systemStatus } = store.getState().global;
+
+          if (isNullorUndefined(user) && systemStatus.disablePublicMemos) {
             return redirect("/auth");
           }
           return null;
@@ -122,8 +134,9 @@ const router = createBrowserRouter([
             // do nth
           }
 
-          const { host } = store.getState().user;
-          if (isNullorUndefined(host)) {
+          const { user } = store.getState().user;
+
+          if (isNullorUndefined(user)) {
             return redirect("/auth");
           }
           return null;
@@ -141,8 +154,9 @@ const router = createBrowserRouter([
             // do nth
           }
 
-          const { host } = store.getState().user;
-          if (isNullorUndefined(host)) {
+          const { user } = store.getState().user;
+
+          if (isNullorUndefined(user)) {
             return redirect("/auth");
           }
           return null;
@@ -150,7 +164,7 @@ const router = createBrowserRouter([
       },
       {
         path: "memo-chat",
-        element: <MemosChat />,
+        element: <MemoChat />,
         loader: async () => {
           await initialGlobalStateLoader();
 
@@ -160,8 +174,9 @@ const router = createBrowserRouter([
             // do nth
           }
 
-          const { host } = store.getState().user;
-          if (isNullorUndefined(host)) {
+          const { user } = store.getState().user;
+
+          if (isNullorUndefined(user)) {
             return redirect("/auth");
           }
           return null;
@@ -180,8 +195,9 @@ const router = createBrowserRouter([
             // do nth
           }
 
-          const { host } = store.getState().user;
-          if (isNullorUndefined(host)) {
+          const { user } = store.getState().user;
+
+          if (isNullorUndefined(user)) {
             return redirect("/auth");
           }
           return null;
@@ -199,8 +215,9 @@ const router = createBrowserRouter([
             // do nth
           }
 
-          const { host } = store.getState().user;
-          if (isNullorUndefined(host)) {
+          const { user } = store.getState().user;
+
+          if (isNullorUndefined(user)) {
             return redirect("/auth");
           }
           return null;
@@ -220,8 +237,10 @@ const router = createBrowserRouter([
         // do nth
       }
 
-      const { host } = store.getState().user;
-      if (isNullorUndefined(host)) {
+      const { user } = store.getState().user;
+      const { systemStatus } = store.getState().global;
+
+      if (isNullorUndefined(user) && systemStatus.disablePublicMemos) {
         return redirect("/auth");
       }
       return null;

@@ -1,7 +1,7 @@
 import { Button } from "@mui/joy";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
-import { useTranslation } from "react-i18next";
+import { useTranslate } from "@/utils/i18n";
 import { DEFAULT_MEMO_LIMIT } from "@/helpers/consts";
 import useLoading from "@/hooks/useLoading";
 import useEvent from "@/hooks/useEvent";
@@ -17,7 +17,7 @@ import showCreateResourceDialog from "@/components/CreateResourceDialog";
 import Empty from "@/components/Empty";
 
 const ResourcesDashboard = () => {
-  const { t } = useTranslation();
+  const t = useTranslate();
   const loadingState = useLoading();
   const resourceStore = useResourceStore();
   const resources = resourceStore.state.resources;
@@ -94,9 +94,11 @@ const ResourcesDashboard = () => {
         style: "warning",
         dialogName: "delete-resource-dialog",
         onConfirm: async () => {
-          selectedList.map(async (resourceId: ResourceId) => {
+          for (const resourceId of selectedList) {
             await resourceStore.deleteResourceById(resourceId);
-          });
+          }
+
+          setSelectedList([]);
         },
       });
     }
@@ -252,7 +254,7 @@ const ResourcesDashboard = () => {
                     onClick={handleDeleteUnusedResourcesBtnClick}
                   >
                     <Icon.Trash2 className="w-4 h-auto mr-2" />
-                    {t("common.clear")}
+                    {t("resource.clear")}
                   </button>
                 </>
               }
@@ -284,7 +286,7 @@ const ResourcesDashboard = () => {
             ) : (
               <div
                 className={
-                  listStyle === "TABLE"
+                  listStyle === "TABLE" || resourceList.length === 0
                     ? "flex flex-col justify-start items-start w-full"
                     : "w-full h-auto grid grid-cols-2 md:grid-cols-4 md:px-6 gap-6"
                 }

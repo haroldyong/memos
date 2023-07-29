@@ -1,22 +1,17 @@
 import Icon from "@/components/Icon";
 import Textarea from "@mui/joy/Textarea/Textarea";
-import { useTranslation } from "react-i18next";
+import { useTranslate } from "@/utils/i18n";
 
-interface MemosChatInputProps {
+interface Props {
   question: string;
   handleQuestionTextareaChange: any;
   setIsInIME: any;
   handleKeyDown: any;
   handleSendQuestionButtonClick: any;
 }
-const MemosChatInput = ({
-  question,
-  handleQuestionTextareaChange,
-  setIsInIME,
-  handleKeyDown,
-  handleSendQuestionButtonClick,
-}: MemosChatInputProps) => {
-  const { t } = useTranslation();
+
+const ChatInput = ({ question, handleQuestionTextareaChange, setIsInIME, handleKeyDown, handleSendQuestionButtonClick }: Props) => {
+  const t = useTranslate();
 
   return (
     <div className="w-full relative mt-4">
@@ -39,4 +34,4 @@ const MemosChatInput = ({
   );
 };
 
-export default MemosChatInput;
+export default ChatInput;

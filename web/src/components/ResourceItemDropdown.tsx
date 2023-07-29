@@ -1,7 +1,7 @@
 import copy from "copy-to-clipboard";
 import React from "react";
 import toast from "react-hot-toast";
-import { useTranslation } from "react-i18next";
+import { useTranslate } from "@/utils/i18n";
 import { useResourceStore } from "@/store/module";
 import { getResourceUrl } from "@/utils/resource";
 import Dropdown from "./kit/Dropdown";
@@ -15,17 +15,13 @@ interface Props {
 }
 
 const ResourceItemDropdown = ({ resource }: Props) => {
-  const { t } = useTranslation();
+  const t = useTranslate();
   const resourceStore = useResourceStore();
-  const resources = resourceStore.state.resources;
 
   const handlePreviewBtnClick = (resource: Resource) => {
     const resourceUrl = getResourceUrl(resource);
     if (resource.type.startsWith("image")) {
-      showPreviewImageDialog(
-        resources.filter((r) => r.type.startsWith("image")).map((r) => getResourceUrl(r)),
-        resources.findIndex((r) => r.id === resource.id)
-      );
+      showPreviewImageDialog([getResourceUrl(resource)], 0);
     } else {
       window.open(resourceUrl);
     }

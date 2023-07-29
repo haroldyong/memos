@@ -75,7 +75,7 @@ func NewServer(ctx context.Context, profile *profile.Profile, store *store.Store
 
 	serverID, err := s.getSystemServerID(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to retrieve system server ID: %w", err)
 	}
 	s.ID = serverID
 
@@ -85,7 +85,7 @@ func NewServer(ctx context.Context, profile *profile.Profile, store *store.Store
 	if profile.Mode == "prod" {
 		secret, err = s.getSystemSecretSessionName(ctx)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to retrieve system secret session name: %w", err)
 		}
 	}
 	s.Secret = secret
@@ -103,6 +103,7 @@ func (s *Server) Start(ctx context.Context) error {
 	}
 
 	go s.telegramBot.Start(ctx)
+	go autoBackup(ctx, s.Store)
 
 	return s.e.Start(fmt.Sprintf(":%d", s.Profile.Port))
 }

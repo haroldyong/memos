@@ -74,7 +74,7 @@ func audienceContains(audience jwt.ClaimStrings, token string) bool {
 // will try to generate new access token and refresh token.
 func JWTMiddleware(server *APIV1Service, next echo.HandlerFunc, secret string) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		path := c.Request().URL.Path
+		path := c.Path()
 		method := c.Request().Method
 
 		if server.defaultAuthSkipper(c) {
@@ -82,7 +82,7 @@ func JWTMiddleware(server *APIV1Service, next echo.HandlerFunc, secret string) e
 		}
 
 		// Skip validation for server status endpoints.
-		if util.HasPrefixes(path, "/api/v1/ping", "/api/v1/idp", "/api/v1/status", "/api/v1/user/:id") && method == http.MethodGet {
+		if util.HasPrefixes(path, "/api/v1/ping", "/api/v1/idp", "/api/v1/status", "/api/v1/user") && path != "/api/v1/user/me" && method == http.MethodGet {
 			return next(c)
 		}
 
@@ -112,13 +112,6 @@ func JWTMiddleware(server *APIV1Service, next echo.HandlerFunc, secret string) e
 			return nil, errors.Errorf("unexpected access token kid=%v", t.Header["kid"])
 		})
 
-		if !accessToken.Valid {
-			return echo.NewHTTPError(http.StatusUnauthorized, "Invalid access token.")
-		}
-
-		if !audienceContains(claims.Audience, auth.AccessTokenAudienceName) {
-			return echo.NewHTTPError(http.StatusUnauthorized, fmt.Sprintf("Invalid access token, audience mismatch, got %q, expected %q.", claims.Audience, auth.AccessTokenAudienceName))
-		}
 		generateToken := time.Until(claims.ExpiresAt.Time) < auth.RefreshThresholdDuration
 		if err != nil {
 			var ve *jwt.ValidationError
@@ -129,8 +122,13 @@ func JWTMiddleware(server *APIV1Service, next echo.HandlerFunc, secret string) e
 					generateToken = true
 				}
 			} else {
+				auth.RemoveTokensAndCookies(c)
 				return echo.NewHTTPError(http.StatusUnauthorized, errors.Wrap(err, "Invalid or expired access token"))
 			}
+		}
+
+		if !audienceContains(claims.Audience, auth.AccessTokenAudienceName) {
+			return echo.NewHTTPError(http.StatusUnauthorized, fmt.Sprintf("Invalid access token, audience mismatch, got %q, expected %q.", claims.Audience, auth.AccessTokenAudienceName))
 		}
 
 		// We either have a valid access token or we will attempt to generate new access token and refresh token
